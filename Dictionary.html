@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dictionary</title>
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        background: linear-gradient(to right, #ffecd2, #fcb69f);
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        color: #333;
+      }
+      #container {
+        width: 450px;
+        border: 2px solid #333;
+        border-radius: 10px;
+        background-color: #fff;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        text-align: center;
+        transition: transform 0.3s ease-in-out;
+      }
+      #container:hover {
+        transform: scale(1.02);
+      }
+      #search input {
+        width: calc(100% - 22px);
+        padding: 10px;
+        font-size: 1em;
+        margin-bottom: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      #button, #sound {
+        margin-top: 10px;
+      }
+      button {
+        background-color: #ff6347;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin: 5px;
+      }
+      button:hover {
+        background-color: #ff4500;
+      }
+      #result {
+        font-size: 1.2em;
+        margin-top: 20px;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+      }
+      .word-heading {
+        font-size: 2em;
+        color: grey;
+        margin-bottom: 10px;
+      }
+      .phonetics {
+        font-size: 1.2em;
+        color: #555;
+        margin-bottom: 20px;
+      }
+      .meaning {
+        font-size: 1.5em;
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .example {
+        font-size: 1.2em;
+        color: #777;
+      }
+      #sound-icon {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+      }
+      h1 {
+        margin-bottom: 20px;
+        font-size: 2.5em;
+        color: #ff4500;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <h1 id="heading">Dictionary</h1>
+      <div id="search">
+        <input type="text" id="input" placeholder="Enter a word..." />
+      </div>
+      <div id="button">
+        <button onclick="getresult()" id="btn">Search</button>
+      </div>
+      <div id="result">
+        <h1 class="word-heading" id="word"></h1>
+        <div class="phonetics" id="phonetics"></div>
+        <img id="sound-icon" src="https://img.icons8.com/ios-glyphs/30/000000/speaker.png" style="display: none;" onclick="playsound()" />
+        <div class="meaning" id="definition"></div>
+        <div class="example" id="example"></div>
+      </div>
+    </div>
+    <audio id="audio"></audio>
+    <script>
+      async function getresult() {
+        let input = document.getElementById("input").value;
+        let result = document.getElementById("result");
+        let wordHeading = document.getElementById("word");
+        let phonetics = document.getElementById("phonetics");
+        let definition = document.getElementById("definition");
+        let example = document.getElementById("example");
+        const sound = document.getElementById("audio");
+        const soundIcon = document.getElementById("sound-icon");
+        result.style.opacity = 0;
+        let url = "https://api.dictionaryapi.dev/api/v2/entries/en/";
+        let meaning = await fetch(`${url}${input}`);
+        let data = await meaning.json();
+        
+        if (data.title === "No Definitions Found") {
+          wordHeading.textContent = "";
+          phonetics.textContent = "";
+          definition.textContent = "No results found.";
+          example.textContent = "";
+          soundIcon.style.display = "none";
+        } else {
+          wordHeading.textContent = input;
+          phonetics.textContent = data[0].phonetics[0].text;
+          definition.textContent = data[0].meanings[0].definitions[0].definition;
+          example.textContent = data[0].meanings[0].definitions[0].example || "";
+          sound.setAttribute("src", `${data[0].phonetics[0].audio}`);
+          soundIcon.style.display = "inline-block";
+        }
+        
+        result.style.opacity = 1;
+      }
+      function playsound() {
+        const sound = document.getElementById("audio");
+        sound.play();
+      }
+    </script>
+  </body>
+</html>
